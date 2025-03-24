@@ -16,7 +16,7 @@ const Hero = () => {
         </h1>
         
         <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-10 animate-fade-in">
-          Safehaven bridges the gap between exponential AI growth and linear societal adaptation through collaborative governance and global readiness initiatives.
+          SafeHaven is building the societal immune system for AI at scale, anchored by AI Townsquare, Societal Readiness Index and the Readiness Institute.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
