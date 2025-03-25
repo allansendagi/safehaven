@@ -28,7 +28,7 @@ const GrowthCurveVisualization = () => {
       .attr('width', width)
       .attr('height', height);
     
-    // Define margins
+    // Define margins and chart dimensions
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
@@ -37,7 +37,7 @@ const GrowthCurveVisualization = () => {
     const chartGroup = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
     
-    // Timeline data with AI advancement events and societal adaptation events
+    // Timeline data with AI advancement and societal adaptation events
     const timelineData: TimelineEvent[] = [
       { year: 2020, aiEvent: "GPT-3 launches", societyEvent: "EU proposes AI Act", aiY: 30, societyY: 25 },
       { year: 2021, aiEvent: "AlphaFold 2 released", societyEvent: "First AI ethics frameworks", aiY: 40, societyY: 30 },
@@ -62,13 +62,15 @@ const GrowthCurveVisualization = () => {
       .ticks(6);
     
     const yAxis = d3.axisLeft(yScale)
-      .tickFormat(d => "")
+      .tickFormat(() => "")
       .ticks(5);
     
-    // Add x-axis
-    chartGroup.append('g')
-      .attr('transform', `translate(0, ${chartHeight})`)
-      .call(xAxis)
+    // Create a dedicated x-axis group and call the axis with type casting
+    const xAxisGroup = chartGroup.append('g')
+      .attr('transform', `translate(0, ${chartHeight})`);
+    
+    xAxisGroup
+      .call(xAxis as unknown as (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void)
       .selectAll('text')
       .style('font-size', '10px');
     
@@ -93,13 +95,12 @@ const GrowthCurveVisualization = () => {
       .attr('font-size', '12px')
       .text('Capability / Adaptation');
     
-    // Create exponential curve for AI advancement
+    // Create curves for AI advancement and societal adaptation
     const aiLine = d3.line<TimelineEvent>()
       .x(d => xScale(d.year))
       .y(d => yScale(d.aiY))
       .curve(d3.curveCardinal);
     
-    // Create linear curve for societal adaptation
     const societyLine = d3.line<TimelineEvent>()
       .x(d => xScale(d.year))
       .y(d => yScale(d.societyY))
@@ -121,7 +122,7 @@ const GrowthCurveVisualization = () => {
       .attr('stroke-width', 3)
       .attr('d', societyLine);
     
-    // Add the gap area
+    // Add gap area between curves
     chartGroup.append('path')
       .datum(timelineData)
       .attr('fill', '#EF4444')
@@ -132,7 +133,7 @@ const GrowthCurveVisualization = () => {
         .y1(d => yScale(d.aiY))
       );
     
-    // Add event markers for AI advancement
+    // Add event markers and labels for AI advancement
     chartGroup.selectAll('.ai-event-marker')
       .data(timelineData)
       .enter()
@@ -143,18 +144,6 @@ const GrowthCurveVisualization = () => {
       .attr('r', 5)
       .attr('fill', '#3B82F6');
     
-    // Add event markers for societal adaptation
-    chartGroup.selectAll('.society-event-marker')
-      .data(timelineData)
-      .enter()
-      .append('circle')
-      .attr('class', 'society-event-marker')
-      .attr('cx', d => xScale(d.year))
-      .attr('cy', d => yScale(d.societyY))
-      .attr('r', 5)
-      .attr('fill', '#10B981');
-    
-    // Add event labels for AI advancement
     chartGroup.selectAll('.ai-event-label')
       .data(timelineData)
       .enter()
@@ -167,7 +156,17 @@ const GrowthCurveVisualization = () => {
       .attr('fill', '#3B82F6')
       .text(d => d.aiEvent);
     
-    // Add event labels for societal adaptation
+    // Add event markers and labels for societal adaptation
+    chartGroup.selectAll('.society-event-marker')
+      .data(timelineData)
+      .enter()
+      .append('circle')
+      .attr('class', 'society-event-marker')
+      .attr('cx', d => xScale(d.year))
+      .attr('cy', d => yScale(d.societyY))
+      .attr('r', 5)
+      .attr('fill', '#10B981');
+    
     chartGroup.selectAll('.society-event-label')
       .data(timelineData)
       .enter()
@@ -229,45 +228,35 @@ const GrowthCurveVisualization = () => {
       .attr('font-size', '10px')
       .text('Readiness Gap');
     
-    // Add responsive resize handler
+    // Responsive resize handler
     const resizeVisualization = () => {
       if (!svgRef.current) return;
       
       const newWidth = svgRef.current.clientWidth;
-      
-      // Update SVG width
       svg.attr('width', newWidth);
       
-      // Update chart dimensions
       const newChartWidth = newWidth - margin.left - margin.right;
       
-      // Update scales
+      // Update scale range
       xScale.range([0, newChartWidth]);
       
+      // Update x-axis group with proper type casting
+      xAxisGroup
+        .call(xAxis as unknown as (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void)
+        .selectAll('text')
+        .style('font-size', '10px');
       
-      // Update x-axis
-      chartGroup.select('g')
-        .call(xAxis);
-
-      // Add x-axis
-chartGroup.append('g')
-  .attr('transform', `translate(0, ${chartHeight})`)
-  .call(xAxis as any)  // Add type casting only if needed
-  .selectAll('text')
-  .style('font-size', '10px');
-      
-      // Update x-axis label
+      // Update x-axis label position
       chartGroup.select('text')
         .attr('x', newChartWidth / 2);
       
-      // Update curves
+      // Update curves and area
       chartGroup.select('path:nth-child(1)')
         .attr('d', aiLine);
       
       chartGroup.select('path:nth-child(2)')
         .attr('d', societyLine);
       
-      // Update gap area
       chartGroup.select('path:nth-child(3)')
         .attr('d', d3.area<TimelineEvent>()
           .x(d => xScale(d.year))
@@ -275,14 +264,13 @@ chartGroup.append('g')
           .y1(d => yScale(d.aiY))
         );
       
-      // Update event markers
+      // Update markers and labels
       chartGroup.selectAll('.ai-event-marker')
         .attr('cx', d => xScale(d.year));
       
       chartGroup.selectAll('.society-event-marker')
         .attr('cx', d => xScale(d.year));
       
-      // Update event labels
       chartGroup.selectAll('.ai-event-label')
         .attr('x', d => xScale(d.year));
       
@@ -294,7 +282,6 @@ chartGroup.append('g')
     };
     
     window.addEventListener('resize', resizeVisualization);
-    
     return () => {
       window.removeEventListener('resize', resizeVisualization);
     };
