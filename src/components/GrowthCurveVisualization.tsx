@@ -244,9 +244,17 @@ const GrowthCurveVisualization = () => {
       // Update scales
       xScale.range([0, newChartWidth]);
       
+      
       // Update x-axis
       chartGroup.select('g')
         .call(xAxis);
+
+      // Add x-axis
+chartGroup.append('g')
+  .attr('transform', `translate(0, ${chartHeight})`)
+  .call(xAxis as any)  // Add type casting only if needed
+  .selectAll('text')
+  .style('font-size', '10px');
       
       // Update x-axis label
       chartGroup.select('text')
