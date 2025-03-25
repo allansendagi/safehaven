@@ -18,23 +18,22 @@ const GrowthCurveVisualization = () => {
     if (!svgRef.current) return;
     
     // Clear any previous content
-    d3.select(svgRef.current).selectAll('*').remove();
+    const svgSelection = d3.select(svgRef.current);
+    svgSelection.selectAll('*').remove();
     
     const width = svgRef.current.clientWidth;
     const height = 300;
     
-    // Create SVG
-    const svg = d3.select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height);
+    // Set SVG dimensions
+    svgSelection.attr('width', width).attr('height', height);
     
     // Define margins and chart dimensions
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
     
-    // Create chart group
-    const chartGroup = svg.append('g')
+    // Create the main chart group
+    const chartGroup = svgSelection.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
     
     // Timeline data
@@ -65,7 +64,7 @@ const GrowthCurveVisualization = () => {
       .tickFormat(() => "")
       .ticks(5);
     
-    // Create dedicated x-axis group and call xAxis with type casting
+    // Append a dedicated x-axis group and update it using a type cast
     const xAxisGroup = chartGroup.append('g')
       .attr('transform', `translate(0, ${chartHeight})`);
     
@@ -74,7 +73,7 @@ const GrowthCurveVisualization = () => {
       .selectAll('text')
       .style('font-size', '10px');
     
-    // Add y-axis
+    // Append a dedicated y-axis group
     chartGroup.append('g')
       .call(yAxis as unknown as (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void);
     
@@ -83,7 +82,7 @@ const GrowthCurveVisualization = () => {
       .attr('x', chartWidth / 2)
       .attr('y', chartHeight + 35)
       .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
+      .style('font-size', '12px')
       .text('Year');
     
     // Add y-axis label
@@ -92,10 +91,10 @@ const GrowthCurveVisualization = () => {
       .attr('x', -chartHeight / 2)
       .attr('y', -35)
       .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
+      .style('font-size', '12px')
       .text('Capability / Adaptation');
     
-    // Create curves for AI advancement and societal adaptation
+    // Create curves
     const aiLine = d3.line<TimelineEvent>()
       .x(d => xScale(d.year))
       .y(d => yScale(d.aiY))
@@ -122,15 +121,15 @@ const GrowthCurveVisualization = () => {
       .attr('stroke-width', 3)
       .attr('d', societyLine);
     
-    // Add gap area
+    // Add gap area between curves
     chartGroup.append('path')
       .datum(timelineData)
       .attr('fill', '#EF4444')
       .attr('fill-opacity', 0.1)
       .attr('d', d3.area<TimelineEvent>()
-        .x(d => xScale(d.year))
-        .y0(d => yScale(d.societyY))
-        .y1(d => yScale(d.aiY))
+          .x(d => xScale(d.year))
+          .y0(d => yScale(d.societyY))
+          .y1(d => yScale(d.aiY))
       );
     
     // Add event markers and labels for AI advancement
@@ -152,7 +151,7 @@ const GrowthCurveVisualization = () => {
       .attr('x', d => xScale(d.year))
       .attr('y', d => yScale(d.aiY) - 10)
       .attr('text-anchor', 'middle')
-      .attr('font-size', '8px')
+      .style('font-size', '8px')
       .attr('fill', '#3B82F6')
       .text(d => d.aiEvent);
     
@@ -175,7 +174,7 @@ const GrowthCurveVisualization = () => {
       .attr('x', d => xScale(d.year))
       .attr('y', d => yScale(d.societyY) + 15)
       .attr('text-anchor', 'middle')
-      .attr('font-size', '8px')
+      .style('font-size', '8px')
       .attr('fill', '#10B981')
       .text(d => d.societyEvent);
     
@@ -195,7 +194,7 @@ const GrowthCurveVisualization = () => {
     legend.append('text')
       .attr('x', 25)
       .attr('y', 4)
-      .attr('font-size', '10px')
+      .style('font-size', '10px')
       .text('AI Advancement');
     
     // Societal adaptation legend
@@ -210,7 +209,7 @@ const GrowthCurveVisualization = () => {
     legend.append('text')
       .attr('x', 25)
       .attr('y', 24)
-      .attr('font-size', '10px')
+      .style('font-size', '10px')
       .text('Societal Adaptation');
     
     // Gap legend
@@ -225,7 +224,7 @@ const GrowthCurveVisualization = () => {
     legend.append('text')
       .attr('x', 25)
       .attr('y', 44)
-      .attr('font-size', '10px')
+      .style('font-size', '10px')
       .text('Readiness Gap');
     
     // Responsive resize handler
@@ -233,41 +232,38 @@ const GrowthCurveVisualization = () => {
       if (!svgRef.current) return;
       
       const newWidth = svgRef.current.clientWidth;
-      svg.attr('width', newWidth);
+      svgSelection.attr('width', newWidth);
       
       const newChartWidth = newWidth - margin.left - margin.right;
-      
-      // Update scale range
       xScale.range([0, newChartWidth]);
       
-      // Update the dedicated x-axis group
+      // Update x-axis
       xAxisGroup
         .call(xAxis as unknown as (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void)
         .selectAll('text')
         .style('font-size', '10px');
       
-      // Update x-axis label position
-      // (Assuming the first appended text element is the x-axis label)
+      // Update x-axis label position (filter by text-anchor "middle")
       chartGroup.selectAll('text')
         .filter(function() {
-          // Filter by checking if the element has a "text-anchor" attribute of "middle"
           return d3.select(this).attr('text-anchor') === 'middle';
         })
         .attr('x', newChartWidth / 2);
       
-      // Update curves and gap area
-      chartGroup.select('path:nth-child(1)')
-        .attr('d', aiLine);
-      
-      chartGroup.select('path:nth-child(2)')
-        .attr('d', societyLine);
-      
-      chartGroup.select('path:nth-child(3)')
-        .attr('d', d3.area<TimelineEvent>()
-          .x(d => xScale(d.year))
-          .y0(d => yScale(d.societyY))
-          .y1(d => yScale(d.aiY))
-        );
+      // Update curves and area
+      chartGroup.selectAll('path')
+        .attr('d', function(d, i) {
+          if (i === 0) return aiLine(timelineData) || null;
+          if (i === 1) return societyLine(timelineData) || null;
+          if (i === 2) {
+            return d3.area<TimelineEvent>()
+              .x(d => xScale(d.year))
+              .y0(d => yScale(d.societyY))
+              .y1(d => yScale(d.aiY))
+              (timelineData) || null;
+          }
+          return null;
+        });
       
       // Update markers and labels
       chartGroup.selectAll('.ai-event-marker')
