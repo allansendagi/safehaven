@@ -1,6 +1,19 @@
 import React from 'react';
 
-const ResponsiveGrid = ({ children, columns = { default: 1, sm: 2, md: 3, lg: 4 }, gap = 6, className = '' }) => {
+interface ColumnsProps {
+  default: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl?: number;
+}
+
+const ResponsiveGrid = ({ 
+  children, 
+  columns = { default: 1, sm: 2, md: 3, lg: 4 } as ColumnsProps, 
+  gap = 6, 
+  className = '' 
+}) => {
   // Generate the grid columns class based on the columns prop
   const getGridColsClass = () => {
     const colClasses = [];

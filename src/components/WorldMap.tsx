@@ -7,7 +7,7 @@ const WorldMapChart = dynamic(() => import('./WorldMapChart'), { ssr: false });
 const WorldMap = () => {
   return (
     <div className="world-map-container">
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[400px] w-full">
         <div className="absolute inset-0">
           <WorldMapChart />
         </div>

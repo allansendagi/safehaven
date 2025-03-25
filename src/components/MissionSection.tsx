@@ -9,6 +9,18 @@ const MissionSection = () => {
           <p className="text-lg text-gray-700">
             Safehaven exists to prepare civilization for the advent of artificial intelligence and superintelligence through collaborative governance, societal readiness, and global initiatives.
           </p>
+          
+          {/* YouTube Video */}
+          <div className="mt-8 relative pb-[56.25%] h-0 overflow-hidden max-w-3xl mx-auto">
+            <iframe 
+              className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/DfFzAlDSeUY" 
+              title="Preparing Civilisation for the Advent of AI and Superintelligence"
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen>
+            </iframe>
+          </div>
         </div>
         
         <div className="grid md:grid-cols-3 gap-8">

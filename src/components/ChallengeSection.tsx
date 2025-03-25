@@ -1,4 +1,5 @@
 import React from 'react';
+import GrowthCurveVisualization from './GrowthCurveVisualization';
 
 const ChallengeSection = () => {
   return (
@@ -15,12 +16,9 @@ const ChallengeSection = () => {
           {/* Left side: Visualization */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-xl font-semibold mb-4 text-center">Exponential Growth vs. Linear Adaptation</h3>
-            <div className="h-[300px] bg-gray-100 rounded flex items-center justify-center">
-              <p className="text-gray-500">Growth curve visualization will appear here</p>
+            <div className="h-[300px]">
+              <GrowthCurveVisualization />
             </div>
-            <p className="mt-4 text-sm text-gray-600 text-center">
-              The widening gap between AI capabilities and societal readiness creates unprecedented risks and missed opportunities.
-            </p>
           </div>
           
           {/* Right side: Key challenges */}

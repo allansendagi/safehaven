@@ -1,4 +1,5 @@
 import React from 'react';
+import SelfCorrectionVisualization from './SelfCorrectionVisualization';
 
 const ApproachSection = () => {
   return (
@@ -58,8 +59,8 @@ const ApproachSection = () => {
         <div>
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1 bg-gray-50 rounded-lg p-6">
-              <div className="h-[300px] flex items-center justify-center">
-                <p className="text-gray-500">Self-correcting framework visualization will appear here</p>
+              <div className="h-[300px]">
+                <SelfCorrectionVisualization />
               </div>
             </div>
             <div className="order-1 md:order-2">

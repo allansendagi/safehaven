@@ -3,9 +3,14 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
+interface ReadinessDataItem {
+  category: string;
+  score: number;
+}
+
 const ReadinessChart = () => {
   // Sample readiness data
-  const readinessData = [
+  const readinessData: ReadinessDataItem[] = [
     { category: 'Governance Readiness', score: 45 },
     { category: 'Technical Literacy', score: 60 },
     { category: 'Ethical Frameworks', score: 35 },
@@ -13,7 +18,7 @@ const ReadinessChart = () => {
     { category: 'Social Adaptation', score: 30 },
   ];
 
-  const chartRef = useRef(null);
+  const chartRef = useRef<HTMLDivElement | null>(null);
   
   useEffect(() => {
     if (!chartRef.current) return;
@@ -45,20 +50,21 @@ const ReadinessChart = () => {
     
     // Add X axis
     svg.append('g')
+      .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(5).tickFormat(d => `${d}%`))
+      .call(d3.axisBottom(x).ticks(5).tickFormat(d => `${d}%`) as any)
       .selectAll('text')
       .style('font-size', '12px');
     
     // Add Y axis
     svg.append('g')
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(y) as any)
       .selectAll('text')
       .style('font-size', '12px')
       .style('font-weight', '500');
     
     // Color function
-    const getColor = (score) => {
+    const getColor = (score: number) => {
       if (score >= 70) return '#10B981'; // green
       if (score >= 50) return '#F59E0B'; // yellow
       if (score >= 30) return '#F97316'; // orange
@@ -70,7 +76,7 @@ const ReadinessChart = () => {
       .data(readinessData)
       .enter()
       .append('rect')
-      .attr('y', d => y(d.category))
+      .attr('y', d => y(d.category) as number)
       .attr('height', y.bandwidth())
       .attr('x', 0)
       .attr('width', 0) // Start with width 0 for animation
@@ -86,7 +92,8 @@ const ReadinessChart = () => {
       .data(readinessData)
       .enter()
       .append('text')
-      .attr('y', d => y(d.category) + y.bandwidth() / 2 + 5)
+      .attr('class', 'score-label')
+      .attr('y', d => (y(d.category) as number) + y.bandwidth() / 2 + 5)
       .attr('x', d => x(d.score) + 5)
       .text(d => `${d.score}%`)
       .style('font-size', '14px')
@@ -121,15 +128,15 @@ const ReadinessChart = () => {
         .attr('width', newWidth + margin.left + margin.right);
       
       // Update X axis
-      svg.select('.x-axis')
-        .call(d3.axisBottom(x).ticks(5).tickFormat(d => `${d}%`));
+      svg.select<SVGGElement>('.x-axis')
+        .call(d3.axisBottom(x).ticks(5).tickFormat(d => `${d}%`) as any);
       
       // Update bars
-      svg.selectAll('rect')
+      svg.selectAll<SVGRectElement, ReadinessDataItem>('rect')
         .attr('width', d => x(d.score));
       
       // Update labels
-      svg.selectAll('text.score-label')
+      svg.selectAll<SVGTextElement, ReadinessDataItem>('text.score-label')
         .attr('x', d => x(d.score) + 5);
     };
     
@@ -141,13 +148,13 @@ const ReadinessChart = () => {
   }, []);
   
   // Calculate average
-  const calculateAverage = (data) => {
+  const calculateAverage = (data: ReadinessDataItem[]) => {
     const sum = data.reduce((acc, item) => acc + item.score, 0);
     return Math.round(sum / data.length);
   };
   
   // Get message based on score
-  const getReadinessMessage = (score) => {
+  const getReadinessMessage = (score: number) => {
     if (score >= 70) return 'Strong readiness';
     if (score >= 50) return 'Moderate readiness';
     if (score >= 30) return 'Limited readiness';

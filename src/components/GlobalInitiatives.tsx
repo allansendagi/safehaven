@@ -1,4 +1,5 @@
 import React from 'react';
+import WorldMap from './WorldMap';
 
 const GlobalInitiatives = () => {
   return (
@@ -13,8 +14,9 @@ const GlobalInitiatives = () => {
         
         {/* World Map */}
         <div className="mb-16 bg-white rounded-lg shadow-md p-6">
-          <div className="h-[400px] bg-gray-100 rounded flex items-center justify-center">
-            <p className="text-gray-500">Interactive global initiatives map will appear here</p>
+          <h3 className="text-xl font-semibold mb-4 text-center">Global AI Safety & Governance Initiatives</h3>
+          <div className="h-[400px] rounded">
+            <WorldMap />
           </div>
         </div>
         
