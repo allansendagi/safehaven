@@ -1,288 +1,194 @@
-"use client";
-
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { NumberValue } from 'd3';
 
-interface TimelineEvent {
+interface DataPoint {
   year: number;
-  aiEvent: string;
-  societyEvent: string;
-  aiY: number;
-  societyY: number;
+  aiAdvancement: number;
+  societalAdaptation: number;
 }
 
-const GrowthCurveVisualization = () => {
-  const svgRef = useRef<SVGSVGElement | null>(null);
+const GrowthCurveVisualization: React.FC = () => {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // Sample data
+  const timelineData: DataPoint[] = [
+    { year: 2010, aiAdvancement: 10, societalAdaptation: 10 },
+    { year: 2015, aiAdvancement: 30, societalAdaptation: 15 },
+    { year: 2020, aiAdvancement: 60, societalAdaptation: 25 },
+    { year: 2025, aiAdvancement: 90, societalAdaptation: 40 },
+  ];
 
   useEffect(() => {
     if (!svgRef.current) return;
 
-    // Clear any previous content
-    d3.select(svgRef.current).selectAll('*').remove();
-
+    // ### SVG Setup
+    const svg = d3.select(svgRef.current);
     const width = svgRef.current.clientWidth;
-    const height = 300;
-
-    // Create SVG
-    const svg = d3.select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height);
-
-    // Define margins
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+    const height = 300; // Fixed height
+    const margin = { top: 20, right: 50, bottom: 50, left: 50 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    // Create chart group
-    const chartGroup = svg.append('g')
+    // Clear previous content
+    svg.selectAll('*').remove();
+
+    // Append chart group
+    const chartGroup = svg
+      .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    // Timeline data
-    const timelineData: TimelineEvent[] = [
-      { year: 2020, aiEvent: "GPT-3 launches", societyEvent: "EU proposes AI Act", aiY: 30, societyY: 25 },
-      { year: 2021, aiEvent: "AlphaFold 2 released", societyEvent: "First AI ethics frameworks", aiY: 40, societyY: 30 },
-      { year: 2022, aiEvent: "Stable Diffusion & DALL-E 2", societyEvent: "U.S. CHIPS Act", aiY: 55, societyY: 35 },
-      { year: 2023, aiEvent: "GPT-4 released", societyEvent: "Global AI safety summit", aiY: 75, societyY: 40 },
-      { year: 2024, aiEvent: "Multimodal AI systems", societyEvent: "International AI treaties", aiY: 100, societyY: 45 },
-      { year: 2025, aiEvent: "AI co-scientist systems", societyEvent: "AI literacy programs", aiY: 130, societyY: 50 },
-    ];
-
-    // Create scales
-    const xScale = d3.scaleLinear()
-      .domain([2020, 2025])
+    // ### Scales
+    const xScale = d3
+      .scaleLinear()
+      .domain(d3.extent(timelineData, d => d.year) as [number, number])
       .range([0, chartWidth]);
 
-    const yScale = d3.scaleLinear()
-      .domain([0, 150])
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, 100])
       .range([chartHeight, 0]);
 
-    // Create axes
-    const xAxis = d3.axisBottom(xScale)
-      .tickFormat(d => d.toString())
-      .ticks(6);
+    // ### Axis Generators
+    const xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d'));
+    const yAxis = d3.axisLeft(yScale);
 
-    const yAxis = d3.axisLeft(yScale)
-      .tickFormat(d => "")
-      .ticks(5);
-
-    // Add x-axis and store the group
-    const xAxisGroup = chartGroup.append('g')
+    // ### Create X-Axis Group
+    const xAxisGroup = chartGroup
+      .append('g')
       .attr('transform', `translate(0, ${chartHeight})`)
       .call(xAxis);
 
-    // Add y-axis
-    chartGroup.append('g')
-      .call(yAxis);
-
-    // Add x-axis label and store it
-    const xLabel = chartGroup.append('text')
+    // ### Create X-Axis Label
+    const xAxisLabel = chartGroup
+      .append('text')
+      .attr('x', chartWidth / 2)
       .attr('y', chartHeight + 35)
       .attr('text-anchor', 'middle')
       .attr('font-size', '12px')
-      .text('Year')
-      .attr('x', chartWidth / 2); // Set initial position
+      .text('Year');
 
-    // Add y-axis label
-    chartGroup.append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('x', -chartHeight / 2)
-      .attr('y', -35)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
-      .text('Capability / Adaptation');
+    // ### Create Y-Axis
+    chartGroup.append('g').call(yAxis);
 
-    // Create curves
-    const aiLine = d3.line<TimelineEvent>()
+    // ### Line and Area Generators
+    const aiLine = d3
+      .line<DataPoint>()
       .x(d => xScale(d.year))
-      .y(d => yScale(d.aiY))
-      .curve(d3.curveCardinal);
+      .y(d => yScale(d.aiAdvancement));
 
-    const societyLine = d3.line<TimelineEvent>()
+    const societyLine = d3
+      .line<DataPoint>()
       .x(d => xScale(d.year))
-      .y(d => yScale(d.societyY))
-      .curve(d3.curveLinear);
+      .y(d => yScale(d.societalAdaptation));
 
-    // Add AI advancement curve
-    chartGroup.append('path')
+    const gapArea = d3
+      .area<DataPoint>()
+      .x(d => xScale(d.year))
+      .y0(d => yScale(d.societalAdaptation))
+      .y1(d => yScale(d.aiAdvancement));
+
+    // ### Add AI Advancement Curve
+    chartGroup
+      .append('path')
       .datum(timelineData)
+      .attr('class', 'ai-line')
       .attr('fill', 'none')
       .attr('stroke', '#3B82F6')
       .attr('stroke-width', 3)
       .attr('d', aiLine);
 
-    // Add societal adaptation curve
-    chartGroup.append('path')
+    // ### Add Societal Adaptation Curve
+    chartGroup
+      .append('path')
       .datum(timelineData)
+      .attr('class', 'society-line')
       .attr('fill', 'none')
       .attr('stroke', '#10B981')
       .attr('stroke-width', 3)
       .attr('d', societyLine);
 
-    // Add the gap area
-    chartGroup.append('path')
+    // ### Add Gap Area
+    chartGroup
+      .append('path')
       .datum(timelineData)
+      .attr('class', 'gap-area')
       .attr('fill', '#EF4444')
       .attr('fill-opacity', 0.1)
-      .attr('d', d3.area<TimelineEvent>()
-        .x(d => xScale(d.year))
-        .y0(d => yScale(d.societyY))
-        .y1(d => yScale(d.aiY))
-      );
+      .attr('d', gapArea);
 
-    // Add event markers and labels
-    chartGroup.selectAll('.ai-event-marker')
-      .data(timelineData)
-      .enter()
-      .append('circle')
-      .attr('class', 'ai-event-marker')
-      .attr('cx', d => xScale(d.year))
-      .attr('cy', d => yScale(d.aiY))
-      .attr('r', 5)
-      .attr('fill', '#3B82F6');
-
-    chartGroup.selectAll('.society-event-marker')
-      .data(timelineData)
-      .enter()
-      .append('circle')
-      .attr('class', 'society-event-marker')
-      .attr('cx', d => xScale(d.year))
-      .attr('cy', d => yScale(d.societyY))
-      .attr('r', 5)
-      .attr('fill', '#10B981');
-
-    chartGroup.selectAll('.ai-event-label')
-      .data(timelineData)
-      .enter()
-      .append('text')
-      .attr('class', 'ai-event-label')
-      .attr('x', d => xScale(d.year))
-      .attr('y', d => yScale(d.aiY) - 10)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '8px')
-      .attr('fill', '#3B82F6')
-      .text(d => d.aiEvent);
-
-    chartGroup.selectAll('.society-event-label')
-      .data(timelineData)
-      .enter()
-      .append('text')
-      .attr('class', 'society-event-label')
-      .attr('x', d => xScale(d.year))
-      .attr('y', d => yScale(d.societyY) + 15)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '8px')
-      .attr('fill', '#10B981')
-      .text(d => d.societyEvent);
-
-    // Add legend
-    const legend = chartGroup.append('g')
+    // ### Add Legend
+    const legend = chartGroup
+      .append('g')
       .attr('transform', `translate(${chartWidth - 150}, 10)`);
 
-    legend.append('line')
-      .attr('x1', 0)
-      .attr('y1', 0)
-      .attr('x2', 20)
-      .attr('y2', 0)
-      .attr('stroke', '#3B82F6')
-      .attr('stroke-width', 3);
+    legend
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', 10)
+      .attr('height', 10)
+      .attr('fill', '#3B82F6');
 
-    legend.append('text')
-      .attr('x', 25)
-      .attr('y', 4)
-      .attr('font-size', '10px')
+    legend
+      .append('text')
+      .attr('x', 15)
+      .attr('y', 10)
+      .attr('font-size', '12px')
       .text('AI Advancement');
 
-    legend.append('line')
-      .attr('x1', 0)
-      .attr('y1', 20)
-      .attr('x2', 20)
-      .attr('y2', 20)
-      .attr('stroke', '#10B981')
-      .attr('stroke-width', 3);
+    legend
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 20)
+      .attr('width', 10)
+      .attr('height', 10)
+      .attr('fill', '#10B981');
 
-    legend.append('text')
-      .attr('x', 25)
-      .attr('y', 24)
-      .attr('font-size', '10px')
+    legend
+      .append('text')
+      .attr('x', 15)
+      .attr('y', 30)
+      .attr('font-size', '12px')
       .text('Societal Adaptation');
 
-    legend.append('rect')
-      .attr('x', 0)
-      .attr('y', 35)
-      .attr('width', 20)
-      .attr('height', 10)
-      .attr('fill', '#EF4444')
-      .attr('fill-opacity', 0.1);
-
-    legend.append('text')
-      .attr('x', 25)
-      .attr('y', 44)
-      .attr('font-size', '10px')
-      .text('Readiness Gap');
-
-    // Add responsive resize handler
+    // ### Resize Handler
     const resizeVisualization = () => {
       if (!svgRef.current) return;
 
       const newWidth = svgRef.current.clientWidth;
       const newChartWidth = newWidth - margin.left - margin.right;
 
-      // Update SVG width
-      svg.attr('width', newWidth);
-
-      // Update xScale
+      // Update xScale range
       xScale.range([0, newChartWidth]);
 
-      // Update x-axis using the stored group
+      // Update x-axis
       xAxisGroup.call(xAxis);
 
-      // Update x-axis label using the stored selection
-      xLabel.attr('x', newChartWidth / 2);
+      // Update x-axis label position
+      xAxisLabel.attr('x', newChartWidth / 2);
 
       // Update curves
-      chartGroup.select('path:nth-child(1)')
-        .attr('d', aiLine);
-
-      chartGroup.select('path:nth-child(2)')
-        .attr('d', societyLine);
-
-      chartGroup.select('path:nth-child(3)')
-        .attr('d', d3.area<TimelineEvent>()
-          .x(d => xScale(d.year))
-          .y0(d => yScale(d.societyY))
-          .y1(d => yScale(d.aiY))
-        );
-
-      // Update event markers and labels
-      chartGroup.selectAll('.ai-event-marker')
-        .attr('cx', d => xScale(d.year));
-
-      chartGroup.selectAll('.society-event-marker')
-        .attr('cx', d => xScale(d.year));
-
-      chartGroup.selectAll('.ai-event-label')
-        .attr('x', d => xScale(d.year));
-
-      chartGroup.selectAll('.society-event-label')
-        .attr('x', d => xScale(d.year));
+      chartGroup.select('.ai-line').attr('d', aiLine);
+      chartGroup.select('.society-line').attr('d', societyLine);
+      chartGroup.select('.gap-area').attr('d', gapArea);
 
       // Update legend position
       legend.attr('transform', `translate(${newChartWidth - 150}, 10)`);
     };
 
+    // Attach resize event listener
     window.addEventListener('resize', resizeVisualization);
 
+    // Cleanup
     return () => {
       window.removeEventListener('resize', resizeVisualization);
     };
   }, []);
 
   return (
-    <div className="w-full h-full">
-      <svg ref={svgRef} className="w-full h-full"></svg>
-      <div className="mt-4 text-xs text-gray-600 text-center">
-        <p>The widening gap between AI capabilities and societal readiness creates unprecedented risks and missed opportunities.</p>
-      </div>
+    <div style={{ width: '100%' }}>
+      <svg ref={svgRef} style={{ width: '100%', height: '300px' }}></svg>
     </div>
   );
 };
