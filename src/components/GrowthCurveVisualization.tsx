@@ -68,9 +68,7 @@ const GrowthCurveVisualization = () => {
     // Add x-axis and store the group
     const xAxisGroup = chartGroup.append('g')
       .attr('transform', `translate(0, ${chartHeight})`)
-      .call(xAxis)
-      .selectAll('text')
-      .style('font-size', '10px');
+      .call(xAxis);
 
     // Add y-axis
     chartGroup.append('g')
@@ -81,8 +79,8 @@ const GrowthCurveVisualization = () => {
       .attr('y', chartHeight + 35)
       .attr('text-anchor', 'middle')
       .attr('font-size', '12px')
-      .text('Year');
-    xLabel.attr('x', chartWidth / 2); // Set initial position
+      .text('Year')
+      .attr('x', chartWidth / 2); // Set initial position
 
     // Add y-axis label
     chartGroup.append('text')
@@ -131,7 +129,7 @@ const GrowthCurveVisualization = () => {
         .y1(d => yScale(d.aiY))
       );
 
-    // Add event markers and labels (unchanged)
+    // Add event markers and labels
     chartGroup.selectAll('.ai-event-marker')
       .data(timelineData)
       .enter()
@@ -176,7 +174,7 @@ const GrowthCurveVisualization = () => {
       .attr('fill', '#10B981')
       .text(d => d.societyEvent);
 
-    // Add legend (unchanged)
+    // Add legend
     const legend = chartGroup.append('g')
       .attr('transform', `translate(${chartWidth - 150}, 10)`);
 
