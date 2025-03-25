@@ -240,17 +240,22 @@ const GrowthCurveVisualization = () => {
       // Update scale range
       xScale.range([0, newChartWidth]);
       
-      // Update x-axis group with proper type casting
+      // Update the dedicated x-axis group
       xAxisGroup
         .call(xAxis as unknown as (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void)
         .selectAll('text')
         .style('font-size', '10px');
       
       // Update x-axis label position
-      chartGroup.select('text')
+      // (Assuming the first appended text element is the x-axis label)
+      chartGroup.selectAll('text')
+        .filter(function() {
+          // Filter by checking if the element has a "text-anchor" attribute of "middle"
+          return d3.select(this).attr('text-anchor') === 'middle';
+        })
         .attr('x', newChartWidth / 2);
       
-      // Update curves and area
+      // Update curves and gap area
       chartGroup.select('path:nth-child(1)')
         .attr('d', aiLine);
       
