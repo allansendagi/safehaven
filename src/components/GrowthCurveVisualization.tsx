@@ -37,7 +37,7 @@ const GrowthCurveVisualization = () => {
     const chartGroup = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
     
-    // Timeline data with AI advancement and societal adaptation events
+    // Timeline data
     const timelineData: TimelineEvent[] = [
       { year: 2020, aiEvent: "GPT-3 launches", societyEvent: "EU proposes AI Act", aiY: 30, societyY: 25 },
       { year: 2021, aiEvent: "AlphaFold 2 released", societyEvent: "First AI ethics frameworks", aiY: 40, societyY: 30 },
@@ -65,7 +65,7 @@ const GrowthCurveVisualization = () => {
       .tickFormat(() => "")
       .ticks(5);
     
-    // Create a dedicated x-axis group and call the axis with type casting
+    // Create dedicated x-axis group and call xAxis with type casting
     const xAxisGroup = chartGroup.append('g')
       .attr('transform', `translate(0, ${chartHeight})`);
     
@@ -76,7 +76,7 @@ const GrowthCurveVisualization = () => {
     
     // Add y-axis
     chartGroup.append('g')
-      .call(yAxis);
+      .call(yAxis as unknown as (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void);
     
     // Add x-axis label
     chartGroup.append('text')
@@ -122,7 +122,7 @@ const GrowthCurveVisualization = () => {
       .attr('stroke-width', 3)
       .attr('d', societyLine);
     
-    // Add gap area between curves
+    // Add gap area
     chartGroup.append('path')
       .datum(timelineData)
       .attr('fill', '#EF4444')
