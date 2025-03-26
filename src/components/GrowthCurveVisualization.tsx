@@ -65,16 +65,16 @@ const GrowthCurveVisualization = () => {
       .tickFormat(d => "")
       .ticks(5);
     
-    // Add x-axis
+    // Add x-axis with more robust type handling
     chartGroup.append('g')
       .attr('transform', `translate(0, ${chartHeight})`)
-      .call(xAxis as any)
+      .call(function(g) { return xAxis(g as any); })
       .selectAll('text')
       .style('font-size', '10px');
     
-    // Add y-axis
+    // Add y-axis with more robust type handling
     chartGroup.append('g')
-      .call(yAxis as any);
+      .call(function(g) { return yAxis(g as any); });
     
     // Add x-axis label
     chartGroup.append('text')
@@ -244,9 +244,9 @@ const GrowthCurveVisualization = () => {
       // Update scales
       xScale.range([0, newChartWidth]);
       
-      // Update x-axis
+      // Update x-axis with more robust type handling
       chartGroup.select('g')
-        .call(xAxis as any);
+        .call(function(g) { return xAxis(g as any); });
       
       // Update x-axis label
       chartGroup.select('text')
