@@ -1,5 +1,5 @@
 import React from 'react';
-// import GrowthCurveVisualization from './GrowthCurveVisualization';
+import GrowthCurveVisualization from './GrowthCurveVisualization';
 
 const ChallengeSection = () => {
   return (
@@ -17,7 +17,7 @@ const ChallengeSection = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-xl font-semibold mb-4 text-center">Exponential Growth vs. Linear Adaptation</h3>
             <div className="h-[300px]">
-{/*               <GrowthCurveVisualization /> */}
+              <GrowthCurveVisualization />
             </div>
           </div>
           
