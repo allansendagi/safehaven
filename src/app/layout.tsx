@@ -46,28 +46,7 @@ export default function RootLayout({
       className={`${montserrat.variable} ${openSans.variable} ${robotoMono.variable}`}
     >
       <head>
-        {/* Add font preload links */}
-        <link 
-          rel="preload" 
-          href={montserrat.style.fontFamily} 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous" 
-        />
-        <link 
-          rel="preload" 
-          href={openSans.style.fontFamily} 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous" 
-        />
-        <link 
-          rel="preload" 
-          href={robotoMono.style.fontFamily} 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous" 
-        />
+        {/* No manual <link rel="preload"> tags needed here */}
       </head>
       <body className={`${openSans.className} antialiased`}>
         <Header />
