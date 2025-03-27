@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
+// Define the TimelineEvent interface
 interface TimelineEvent {
   year: number;
   aiEvent: string;
@@ -11,8 +12,18 @@ interface TimelineEvent {
   societyY: number;
 }
 
-const GrowthCurveVisualization = () => {
+const GrowthCurveVisualization: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  
+  // Define timeline data as a constant outside the useEffect
+  const timelineData: TimelineEvent[] = [
+    { year: 2020, aiEvent: "GPT-3 launches", societyEvent: "EU proposes AI Act", aiY: 30, societyY: 25 },
+    { year: 2021, aiEvent: "AlphaFold 2 released", societyEvent: "First AI ethics frameworks", aiY: 40, societyY: 30 },
+    { year: 2022, aiEvent: "Stable Diffusion & DALL-E 2", societyEvent: "U.S. CHIPS Act", aiY: 55, societyY: 35 },
+    { year: 2023, aiEvent: "GPT-4 released", societyEvent: "Global AI safety summit", aiY: 75, societyY: 40 },
+    { year: 2024, aiEvent: "Multimodal AI systems", societyEvent: "International AI treaties", aiY: 100, societyY: 45 },
+    { year: 2025, aiEvent: "AI co-scientist systems", societyEvent: "AI literacy programs", aiY: 130, societyY: 50 },
+  ];
   
   useEffect(() => {
     if (!svgRef.current) return;
@@ -37,16 +48,6 @@ const GrowthCurveVisualization = () => {
     const chartGroup = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
     
-    // Timeline data with AI advancement events and societal adaptation events
-    const timelineData: TimelineEvent[] = [
-      { year: 2020, aiEvent: "GPT-3 launches", societyEvent: "EU proposes AI Act", aiY: 30, societyY: 25 },
-      { year: 2021, aiEvent: "AlphaFold 2 released", societyEvent: "First AI ethics frameworks", aiY: 40, societyY: 30 },
-      { year: 2022, aiEvent: "Stable Diffusion & DALL-E 2", societyEvent: "U.S. CHIPS Act", aiY: 55, societyY: 35 },
-      { year: 2023, aiEvent: "GPT-4 released", societyEvent: "Global AI safety summit", aiY: 75, societyY: 40 },
-      { year: 2024, aiEvent: "Multimodal AI systems", societyEvent: "International AI treaties", aiY: 100, societyY: 45 },
-      { year: 2025, aiEvent: "AI co-scientist systems", societyEvent: "AI literacy programs", aiY: 130, societyY: 50 },
-    ];
-    
     // Create scales
     const xScale = d3.scaleLinear()
       .domain([2020, 2025])
@@ -62,19 +63,19 @@ const GrowthCurveVisualization = () => {
       .ticks(6);
     
     const yAxis = d3.axisLeft(yScale)
-      .tickFormat(d => "")
+      .tickFormat(() => "")
       .ticks(5);
     
-    // Add x-axis with more robust type handling
+    // Add x-axis
     chartGroup.append('g')
       .attr('transform', `translate(0, ${chartHeight})`)
-      .call(function(g) { return xAxis(g as any); })
+      .call(xAxis)
       .selectAll('text')
       .style('font-size', '10px');
     
-    // Add y-axis with more robust type handling
+    // Add y-axis
     chartGroup.append('g')
-      .call(function(g) { return yAxis(g as any); });
+      .call(yAxis);
     
     // Add x-axis label
     chartGroup.append('text')
@@ -244,9 +245,9 @@ const GrowthCurveVisualization = () => {
       // Update scales
       xScale.range([0, newChartWidth]);
       
-      // Update x-axis with more robust type handling
+      // Update x-axis 
       chartGroup.select('g')
-        .call(function(g) { return xAxis(g as any); });
+        .call(xAxis);
       
       // Update x-axis label
       chartGroup.select('text')
@@ -254,10 +255,10 @@ const GrowthCurveVisualization = () => {
       
       // Update curves
       chartGroup.select('path:nth-child(1)')
-        .attr('d', aiLine);
+        .attr('d', aiLine(timelineData)!);
       
       chartGroup.select('path:nth-child(2)')
-        .attr('d', societyLine);
+        .attr('d', societyLine(timelineData)!);
       
       // Update gap area
       chartGroup.select('path:nth-child(3)')
@@ -265,7 +266,7 @@ const GrowthCurveVisualization = () => {
           .x(d => xScale(d.year))
           .y0(d => yScale(d.societyY))
           .y1(d => yScale(d.aiY))
-        );
+        (timelineData)!);
       
       // Update event markers
       chartGroup.selectAll('.ai-event-marker')
